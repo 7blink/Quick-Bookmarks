@@ -1,7 +1,7 @@
 
 function createMenuIfNeeded(){
 	var doesBookmarksMenuExist = browser.bookmarks.search({title: 'Quick Bookmarks'});
-	doesBookmarksMenuExist.then(onMainMenuFulfilled, onMainMenuRejected);
+	doesBookmarksMenuExist.then(onMainMenuFulfilled, onRejected);
 }
 
 function onMainMenuFulfilled(bookmarkItems){
@@ -11,19 +11,13 @@ function onMainMenuFulfilled(bookmarkItems){
 		createContextMenu()
 	}
 }
-function onMainMenuRejected(error){
-	  console.log(`An error: ${error}`);
-}
 
 function createQuickBookmarksMenu(){
 	function onBTFulfilled(bookmarkItems){
 		browser.bookmarks.create({title: "Quick Bookmarks", parentId: bookmarkItems[0].id, index: 1});
 	}
-	function onBTRejected(error){
-		  console.log(`An error: ${error}`);
-	}
 	var getBookmarksToolbar = browser.bookmarks.search({title: 'Bookmarks Menu'});
-	getBookmarksToolbar.then(onBTFulfilled, onBTRejected);
+	getBookmarksToolbar.then(onBTFulfilled, onRejected);
 }
 
 createMenuIfNeeded();
@@ -59,14 +53,10 @@ function onFulfilled(bookmarkItems) {
 	  logItems(bookmarkItems[0]);
 	}
 
-	function onRejected2(error) {
-	  console.log(`An error: ${error}`);
-	}
-
 	var subTreeID = bookmarkItems[0].id;
 
 	var gettingSubTree = browser.bookmarks.getSubTree(subTreeID);
-	gettingSubTree.then(logSubTree, onRejected2);
+	gettingSubTree.then(logSubTree, onRejected);
 }
 
 function onRejected(error) {
@@ -89,14 +79,10 @@ function openInNewTab(info, tab){
 		function onCreated(tab) {
 		  console.log(`Created new tab: ${tab.id}`)
 		}
-
-		function onError(error) {
-		  console.log(`Error: ${error}`);
-		}
 		var creating = browser.tabs.create({
 	    	url:bookmarkItems[0].url
 	  	});
-		creating.then(onCreated, onError);
+		creating.then(onCreated, onRejected);
 	}
 
 	function onRejected(error) {
@@ -117,29 +103,23 @@ function createQuickBookmark(){
 	  	function onBTFulfilled(bookmarkItems){
 			createBookmarkIfNonExists(bookmarkItems);
 	  	}
-	  	function onBTRejected(error){
-	  		  console.log(`An error: ${error}`);
-	  	}
 	  	var getBookmarksToolbar = browser.bookmarks.search({title: 'Quick Bookmarks'});
-	  	getBookmarksToolbar.then(onBTFulfilled, onBTRejected);
+	  	getBookmarksToolbar.then(onBTFulfilled, onRejected);
 }
 function createBookmarkIfNonExists(bookmarkItems){
 	  function createBookmark(tabs) {
 	    if (tabs[0]) {
 
-		  	function onBTFulfilled(bookmarkItems){
+		  	function onBookmarksIfExistsFulfilled(bookmarkItems){
 				if(bookmarkItems.length < 1){
-	  	      browser.bookmarks.create({title: currentTab.title, url: currentTab.url, parentId: quickBookmarksMenuId});
+	  	      		browser.bookmarks.create({title: currentTab.title, url: currentTab.url, parentId: quickBookmarksMenuId});
 				}else{
 					return;
 				}
 		  	}
-		  	function onBTRejected(error){
-		  		  console.log(`An error: ${error}`);
-		  	}
 	        currentTab = tabs[0];
-		  	var getBookmarksToolbar = browser.bookmarks.search({title: currentTab.title});
-		  	getBookmarksToolbar.then(onBTFulfilled, onBTRejected);
+		  	var getBookmarksIfExists = browser.bookmarks.search({title: currentTab.title});
+		  	getBookmarksIfExists.then(onBookmarksIfExistsFulfilled, onRejected);
 	    }
 	  }
 	  var quickBookmarksMenuId = bookmarkItems[0].id;
