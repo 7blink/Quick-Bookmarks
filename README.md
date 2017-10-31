@@ -4,4 +4,3 @@ This Add-on allows you quick access to select bookmarks from the context menu (r
 
 ## How to use
 
-This extension includes:

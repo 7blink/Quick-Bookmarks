@@ -60,7 +60,7 @@ function onFulfilled(bookmarkItems) {
 }
 
 function onRejected(error) {
-  console.log(`An error: ${error}`);
+	console.log(`An error: ${error}`);
 }
 
 function createContextMenu(){
@@ -75,57 +75,53 @@ Open page in a new tab
 */
 function openInNewTab(info, tab){
 	function onFulfilled(bookmarkItems) {
-
 		function onCreated(tab) {
 		  console.log(`Created new tab: ${tab.id}`)
 		}
 		var creating = browser.tabs.create({
 	    	url:bookmarkItems[0].url
 	  	});
+
 		creating.then(onCreated, onRejected);
 	}
 
 	function onRejected(error) {
 	  console.log(`An error: ${error}`);
 	}
-
 	var searching = browser.bookmarks.search({title: info.menuItemId});
 	searching.then(onFulfilled, onRejected);
-
 }
 
 /*
 Open page in a new tab
 */
 function createQuickBookmark(){
-
-
-	  	function onBTFulfilled(bookmarkItems){
-			createBookmarkIfNonExists(bookmarkItems);
-	  	}
-	  	var getBookmarksToolbar = browser.bookmarks.search({title: 'Quick Bookmarks'});
-	  	getBookmarksToolbar.then(onBTFulfilled, onRejected);
+	function onBTFulfilled(bookmarkItems){
+		createBookmarkIfNonExists(bookmarkItems);
+	}
+	var getBookmarksToolbar = browser.bookmarks.search({title: 'Quick Bookmarks'});
+	getBookmarksToolbar.then(onBTFulfilled, onRejected);
 }
-function createBookmarkIfNonExists(bookmarkItems){
-	  function createBookmark(tabs) {
-	    if (tabs[0]) {
 
-		  	function onBookmarksIfExistsFulfilled(bookmarkItems){
+function createBookmarkIfNonExists(bookmarkItems){
+
+	function createBookmark(tabs) {
+		if (tabs[0]) {
+			function onBookmarksIfExistsFulfilled(bookmarkItems){
 				if(bookmarkItems.length < 1){
-	  	      		browser.bookmarks.create({title: currentTab.title, url: currentTab.url, parentId: quickBookmarksMenuId});
+					browser.bookmarks.create({title: currentTab.title, url: currentTab.url, parentId: quickBookmarksMenuId});
 				}else{
 					return;
 				}
-		  	}
-	        currentTab = tabs[0];
-		  	var getBookmarksIfExists = browser.bookmarks.search({title: currentTab.title});
-		  	getBookmarksIfExists.then(onBookmarksIfExistsFulfilled, onRejected);
-	    }
-	  }
-	  var quickBookmarksMenuId = bookmarkItems[0].id;
-	  var gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
-	  gettingActiveTab.then(createBookmark);
-
+			}
+			    currentTab = tabs[0];
+			  	var getBookmarksIfExists = browser.bookmarks.search({title: currentTab.title});
+			  	getBookmarksIfExists.then(onBookmarksIfExistsFulfilled, onRejected);
+		}
+	}
+	var quickBookmarksMenuId = bookmarkItems[0].id;
+	var gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
+	gettingActiveTab.then(createBookmark);
 }
 
 
