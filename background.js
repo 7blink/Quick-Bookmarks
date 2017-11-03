@@ -93,7 +93,7 @@ function openInNewTab(info, tab){
 }
 
 /*
-Open page in a new tab
+Create new bookmark
 */
 function createQuickBookmark(){
 	function onBTFulfilled(bookmarkItems){
@@ -105,23 +105,39 @@ function createQuickBookmark(){
 
 function createBookmarkIfNonExists(bookmarkItems){
 
-	function createBookmark(tabs) {
-		if (tabs[0]) {
-			function onBookmarksIfExistsFulfilled(bookmarkItems){
-				if(bookmarkItems.length < 1){
-					browser.bookmarks.create({title: currentTab.title, url: currentTab.url, parentId: quickBookmarksMenuId});
-				}else{
-					return;
-				}
-			}
-			    currentTab = tabs[0];
-			  	var getBookmarksIfExists = browser.bookmarks.search({title: currentTab.title});
-			  	getBookmarksIfExists.then(onBookmarksIfExistsFulfilled, onRejected);
-		}
+	function gettingActiveTabFulfulled(tabs) {
+		getExistingBookmarks(tabs, quickBookmarksMenuId)
 	}
 	var quickBookmarksMenuId = bookmarkItems[0].id;
 	var gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
-	gettingActiveTab.then(createBookmark);
+	gettingActiveTab.then(gettingActiveTabFulfulled);
+}
+
+function getExistingBookmarks(tabs, quickBookmarksMenuId){
+	if (tabs[0]) {
+		function onBookmarksIfExistsFulfilled(bookmarkItems){
+			createIfNotInQuickBookmarksMenu(bookmarkItems, quickBookmarksMenuId, currentTab)
+		}
+		currentTab = tabs[0];
+		var getBookmarksIfExists = browser.bookmarks.search({title: currentTab.title});
+		getBookmarksIfExists.then(onBookmarksIfExistsFulfilled, onRejected);
+	}
+}
+
+function createIfNotInQuickBookmarksMenu(bookmarkItems, quickBookmarksMenuId, currentTab){
+	if(bookmarkItems.length < 1){
+		browser.bookmarks.create({title: currentTab.title, url: currentTab.url, parentId: quickBookmarksMenuId});
+	}else{
+		var doesBookmarkExistInQuickBookmarksMenu = false;
+		for(var bookmarkCounter = 0; bookmarkCounter < bookmarkItems.length; bookmarkCounter++){
+			if(bookmarkItems[bookmarkCounter].parentId === quickBookmarksMenuId ){
+				doesBookmarkExistInQuickBookmarksMenu = true;
+			}
+		}
+		if(!doesBookmarkExistInQuickBookmarksMenu){
+			browser.bookmarks.create({title: currentTab.title, url: currentTab.url, parentId: quickBookmarksMenuId});
+		}
+	}
 }
 
 
